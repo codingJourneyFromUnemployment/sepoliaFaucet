@@ -7,7 +7,7 @@ async function main() {
 
   let artifacts = await hre.artifacts.readArtifact("Faucet");
 
-  const provider = new ethers.providers.JsonRpcProvider(url);
+  const provider = new ethers.JsonRpcProvider(url);
 
   let privateKey = process.env.PRIVATE_KEY;
 
@@ -15,12 +15,13 @@ async function main() {
 
   // Create an instance of a Faucet Factory
   let factory = new ethers.ContractFactory(artifacts.abi, artifacts.bytecode, wallet);
+  console.log("deploy...");
 
   let faucet = await factory.deploy();
 
-  console.log("Faucet address:", faucet.address);
-
-  await faucet.deployed();
+  await faucet.waitForDeployment();
+  const address = await faucet.getAddress();
+  console.log("Faucet address:", address);
 }
 
 main()
