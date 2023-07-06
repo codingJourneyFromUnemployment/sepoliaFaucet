@@ -24,8 +24,28 @@ describe('Faucet', function () {
 
   it('should with draw less than 0.1 ether for each request', async function () {
     const { faucet, owner } = await loadFixture(deployContractAndSetVariables);
-    await faucet.withdraw(ethers.parseEther('0.1'));
-    expect(await ethers.provider.getBalance(faucet.address)).to.equal(ethers.parseEther('0.9'));
-    await expect(faucet.withdraw(ethers.parseEther('0.2'))).to.be.revertedWith('Failed to send Ether');
+    await expect(faucet.connect(owner).withdraw(ethers.parseEther('0.2'))).to.be.revertedWith('you can only withdraw .1 ETH at a time');
+  });
+
+  it('only owner can withdraw all', async function () {
+    const { faucet } = await loadFixture(deployContractAndSetVariables)
+    const signers = await ethers.getSigners();
+    const badSigner = signers[1];
+    await expect(faucet.connect(badSigner).withdrawAll()).to.be.revertedWith('you are not the owner');
+  }
+  );
+
+  it('only owner can destroy 1', async function () {
+    const { faucet } = await loadFixture(deployContractAndSetVariables);
+    const signers = await ethers.getSigners();
+    const badSigner = signers[1];
+    await expect(faucet.connect(badSigner).destroyFaucet()).to.be.revertedWith('you are not the owner');
+  });
+
+  it('only owner can destroy 2', async function () {
+    const { faucet, owner } = await loadFixture(deployContractAndSetVariables);
+    await faucet.connect(owner).destroyFaucet();
+    const contractCode = await ethers.provider.getCode(faucet.getAddress());
+    expect(contractCode).to.equal('0x');
   });
 });

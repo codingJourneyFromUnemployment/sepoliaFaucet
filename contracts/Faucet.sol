@@ -10,7 +10,7 @@ contract Faucet {
   
   function withdraw(uint _amount) payable public {
     // users can only withdraw .1 ETH at a time, feel free to change this!
-    require(_amount <= 100000000000000000);
+    require(_amount <= 100000000000000000, "you can only withdraw .1 ETH at a time");
     (bool sent, ) = payable(msg.sender).call{value: _amount}("");
     require(sent, "Failed to send Ether");
   }
@@ -25,7 +25,7 @@ contract Faucet {
   }
 
   modifier onlyOwner() {
-    require(msg.sender == owner);
+    require(msg.sender == owner, "you are not the owner");
     _;
   }
 }
